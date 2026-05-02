@@ -1,0 +1,13 @@
+{
+  "name": "API Route Safety Review",
+  "version": "1.0.0",
+  "description": "Before writing to any API route, verify the change includes error handling and fallback data so the app remains demo-able",
+  "when": {
+    "type": "preToolUse",
+    "toolTypes": ["write"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Before applying this write operation, check: if this is an API route file (src/app/api/**), confirm the change includes a try/catch that returns fallback/mock data on failure rather than throwing a 500. The app must always be demo-able even when external APIs are down."
+  }
+}

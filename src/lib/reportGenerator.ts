@@ -13,12 +13,19 @@ export function formatReportText(report: ComplaintReport): string {
   const date = new Date(report.createdAt).toLocaleString()
 
   const facilityInfo = report.nearbyFacilities.find(f => f.id === report.selectedFacilityId)
+  const totalPhotos = report.photoDataUrls.length + Object.values(report.evidencePhotosByItem || {}).flat().length
 
   let text = `ENVIRONMENTAL VIOLATION COMPLAINT
 Case ID: ${report.id}
 Filed: ${date}
 Language: ${report.language}
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPLAINANT INFORMATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Name: ${report.person.firstName} ${report.person.lastName}
+Email: ${report.person.email}
+${report.person.phone ? `Phone: ${report.person.phone}\n` : ''}${report.person.address ? `Address: ${report.person.address}\n` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 VIOLATION TYPE: ${violationLabel}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -46,7 +53,7 @@ Permit IDs: ${facilityInfo.permitIds.join(', ') || 'None found'}
 `
   }
 
-  text += `EVIDENCE COLLECTED
+  text += `EVIDENCE COLLECTED (${totalPhotos} photos attached)
 ${report.evidenceChecklist
     .filter(e => e.captured)
     .map(e => `✓ ${e.label}`)

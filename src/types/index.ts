@@ -29,6 +29,15 @@ export interface Agency {
   responseWindowHours: number
 }
 
+export interface PersonInfo {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  address: string
+  idPhotoDataUrl: string | null
+}
+
 export interface ComplaintReport {
   id: string
   createdAt: string
@@ -37,6 +46,7 @@ export interface ComplaintReport {
   coords: GPSCoords
   address: string
   photoDataUrls: string[]
+  evidencePhotosByItem: Record<string, string[]>
   nearbyFacilities: EchoFacility[]
   selectedFacilityId: string | null
   agencies: Agency[]
@@ -44,6 +54,7 @@ export interface ComplaintReport {
   status: 'draft' | 'submitted' | 'acknowledged' | 'under_review' | 'closed'
   followUpAt: string | null
   language: string
+  person: PersonInfo
 }
 
 export interface EvidenceItem {
@@ -54,4 +65,14 @@ export interface EvidenceItem {
   captured: boolean
 }
 
-export type Step = 'upload' | 'location' | 'facilities' | 'evidence' | 'review' | 'submitted'
+export type Step = 'person' | 'upload' | 'location' | 'facilities' | 'evidence' | 'review' | 'submitted'
+
+export const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Español' },
+  { code: 'zh', label: '中文' },
+  { code: 'vi', label: 'Tiếng Việt' },
+  { code: 'ar', label: 'العربية' },
+  { code: 'fr', label: 'Français' },
+  { code: 'pt', label: 'Português' },
+]

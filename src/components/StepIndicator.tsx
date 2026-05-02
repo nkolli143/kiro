@@ -4,6 +4,7 @@ import { Step } from '@/types'
 import { Check } from 'lucide-react'
 
 const STEPS: { key: Step; label: string }[] = [
+  { key: 'person', label: 'Your Info' },
   { key: 'upload', label: 'Photo' },
   { key: 'location', label: 'Location' },
   { key: 'facilities', label: 'Facilities' },
@@ -14,25 +15,29 @@ const STEPS: { key: Step; label: string }[] = [
 
 interface Props {
   current: Step
+  onStepClick?: (step: Step) => void
 }
 
-export default function StepIndicator({ current }: Props) {
+export default function StepIndicator({ current, onStepClick }: Props) {
   const currentIndex = STEPS.findIndex(s => s.key === current)
 
   return (
-    <div className="flex items-center justify-center gap-0 mb-8">
+    <div className="flex items-center justify-center gap-0 mb-8 flex-wrap">
       {STEPS.map((step, i) => {
         const done = i < currentIndex
         const active = i === currentIndex
+        const clickable = done && onStepClick
         return (
           <div key={step.key} className="flex items-center">
             <div className="flex flex-col items-center">
-              <div
+              <button
+                onClick={() => clickable && onStepClick(step.key)}
+                disabled={!clickable}
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all
-                  ${done ? 'bg-green-600 text-white' : active ? 'bg-green-700 text-white ring-4 ring-green-200' : 'bg-gray-200 text-gray-500'}`}
+                  ${done ? 'bg-green-600 text-white cursor-pointer hover:bg-green-500' : active ? 'bg-green-700 text-white ring-4 ring-green-200' : 'bg-gray-200 text-gray-500 cursor-default'}`}
               >
                 {done ? <Check size={14} /> : i + 1}
-              </div>
+              </button>
               <span
                 className={`text-xs mt-1 font-medium ${active ? 'text-green-700' : done ? 'text-green-600' : 'text-gray-400'}`}
               >
@@ -41,7 +46,7 @@ export default function StepIndicator({ current }: Props) {
             </div>
             {i < STEPS.length - 1 && (
               <div
-                className={`w-8 h-0.5 mb-4 mx-1 transition-all ${i < currentIndex ? 'bg-green-600' : 'bg-gray-200'}`}
+                className={`w-6 h-0.5 mb-4 mx-1 transition-all ${i < currentIndex ? 'bg-green-600' : 'bg-gray-200'}`}
               />
             )}
           </div>

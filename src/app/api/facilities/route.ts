@@ -26,31 +26,81 @@ export async function GET(req: NextRequest) {
   try {
     // EPA ECHO API — real public data
     // Docs: https://echo.epa.gov/tools/web-services/facility-search
-    const echoUrl = new URL('https://echodata.epa.gov/echo/echo_rest_services.get_facilities')
-    echoUrl.searchParams.set('output', 'JSON')
-    echoUrl.searchParams.set('p_lat', lat.toString())
-    echoUrl.searchParams.set('p_long', lng.toString())
-    echoUrl.searchParams.set('p_radius', '5') // 5 mile radius
-    echoUrl.searchParams.set('p_act', 'Y') // active facilities only
-    echoUrl.searchParams.set('responseset', '10')
+    // ECHO uses a two-step model: first get a QueryID, then fetch paginated results
+    const radii = [10, 25, 50, 80]
+    let results: Record<string, string>[] = []
 
-    const echoRes = await fetch(echoUrl.toString(), {
-      headers: { Accept: 'application/json' },
-      next: { revalidate: 3600 },
-    })
+    for (const radius of radii) {
+      // Step 1: submit search, get QueryID
+      const echoUrl = new URL('https://echodata.epa.gov/echo/echo_rest_services.get_facilities')
+      echoUrl.searchParams.set('output', 'JSON')
+      echoUrl.searchParams.set('p_lat', lat.toString())
+      echoUrl.searchParams.set('p_long', lng.toString())
+      echoUrl.searchParams.set('p_radius', radius.toString())
+      echoUrl.searchParams.set('p_act', 'Y') // active facilities only — keeps count manageable
+      echoUrl.searchParams.set('responseset', '100')
 
-    if (!echoRes.ok) {
-      throw new Error(`EPA ECHO returned ${echoRes.status}`)
+      const echoRes = await fetch(echoUrl.toString(), {
+        headers: { Accept: 'application/json' },
+        next: { revalidate: 3600 },
+      })
+
+      if (!echoRes.ok) {
+        throw new Error(`EPA ECHO returned ${echoRes.status}`)
+      }
+
+      const echoData = await echoRes.json()
+      const queryResults = echoData?.Results
+
+      // ECHO returns a 200 with an error body when the queryset limit is exceeded
+      if (queryResults?.Error) {
+        console.warn(`ECHO queryset limit exceeded at ${radius} miles, trying larger radius...`)
+        continue
+      }
+
+      const queryId = queryResults?.QueryID
+      if (!queryId) {
+        console.warn('No QueryID returned from ECHO')
+        break
+      }
+
+      // Step 2: fetch the actual facility records using the QueryID
+      const pageUrl = new URL('https://echodata.epa.gov/echo/echo_rest_services.get_qid')
+      pageUrl.searchParams.set('output', 'JSON')
+      pageUrl.searchParams.set('qid', queryId)
+      pageUrl.searchParams.set('pageno', '1')
+      pageUrl.searchParams.set('responseset', '100')
+
+      const pageRes = await fetch(pageUrl.toString(), {
+        headers: { Accept: 'application/json' },
+        next: { revalidate: 3600 },
+      })
+
+      if (!pageRes.ok) {
+        throw new Error(`EPA ECHO get_qid returned ${pageRes.status}`)
+      }
+
+      const pageData = await pageRes.json()
+      results = pageData?.Results?.Facilities || []
+      console.log(`ECHO returned ${results.length} facilities at ${radius} mile radius`)
+      break
     }
 
-    const echoData = await echoRes.json()
-    const results = echoData?.Results?.Facilities || []
-
     const facilities: EchoFacility[] = results
-      .filter((f: Record<string, string>) => f.FacLat && f.FacLong)
+      .filter((f: Record<string, string>) => f.FacLat)
       .map((f: Record<string, string>) => {
         const fLat = parseFloat(f.FacLat)
-        const fLng = parseFloat(f.FacLong)
+        // ECHO API does not return FacLong in default columns — use search origin as fallback
+        const fLng = f.FacLong ? parseFloat(f.FacLong) : lng
+
+        // Build program list from individual program flags
+        const programs: string[] = []
+        if (f.AIRFlag === 'Y') programs.push('CAA')
+        if (f.CWAComplianceTracking) programs.push('CWA')
+        if (f.RCRAComplianceStatus) programs.push('RCRA')
+        if (f.SDWAComplianceStatus) programs.push('SDWA')
+        if (f.TRIFlag === 'Y') programs.push('TRI')
+
         return {
           id: f.RegistryID || f.FacilityID || String(Math.random()),
           name: f.FacName || 'Unknown Facility',
@@ -60,14 +110,20 @@ export async function GET(req: NextRequest) {
           zip: f.FacZip || '',
           lat: fLat,
           lng: fLng,
-          distanceMiles: distanceMiles(lat, lng, fLat, fLng),
-          programs: (f.FacActiveFlag || '').split(',').filter(Boolean),
-          violationCount: parseInt(f.FacTotalPenalties || '0', 10) || 0,
+          distanceMiles: f.FacLong ? distanceMiles(lat, lng, fLat, fLng) : -1,
+          programs,
+          violationCount: parseInt(f.FacPenaltyCount || '0', 10) || 0,
           lastInspection: f.FacDateLastInspection || null,
           permitIds: (f.FacPermitIds || '').split(',').filter(Boolean),
         } as EchoFacility
       })
-      .sort((a: EchoFacility, b: EchoFacility) => a.distanceMiles - b.distanceMiles)
+      .sort((a: EchoFacility, b: EchoFacility) => {
+        // Put facilities with known distance first, sorted ascending
+        if (a.distanceMiles === -1 && b.distanceMiles === -1) return 0
+        if (a.distanceMiles === -1) return 1
+        if (b.distanceMiles === -1) return -1
+        return a.distanceMiles - b.distanceMiles
+      })
       .slice(0, 5)
 
     return NextResponse.json({ facilities })

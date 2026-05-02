@@ -5,42 +5,46 @@ import { Camera, Upload, AlertCircle } from 'lucide-react'
 import { GPSCoords, ViolationType } from '@/types'
 
 interface Props {
+  initialPhotos?: string[]
+  initialViolationType?: ViolationType | null
+  initialCoords?: GPSCoords | null
   onComplete: (photos: string[], coords: GPSCoords | null, violationType: ViolationType) => void
+  onBack: () => void
 }
 
-const VIOLATION_TYPES: { value: ViolationType; label: string; description: string; icon: string }[] = [
+const VIOLATION_TYPES: { value: ViolationType; label: string; description: string; img: string }[] = [
   {
     value: 'water_discharge',
     label: 'Water Discharge',
     description: 'Pipe, drain, or runoff into a waterway',
-    icon: '💧',
+    img: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400&q=70',
   },
   {
     value: 'air_emissions',
     label: 'Air Emissions',
     description: 'Smoke, fumes, or visible emissions from a facility',
-    icon: '🏭',
+    img: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=70',
   },
   {
     value: 'illegal_dumping',
     label: 'Illegal Dumping',
     description: 'Waste, chemicals, or materials dumped illegally',
-    icon: '🗑️',
+    img: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&q=70',
   },
   {
     value: 'other',
     label: 'Other Violation',
     description: 'Any other environmental violation',
-    icon: '⚠️',
+    img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=70',
   },
 ]
 
-export default function UploadStep({ onComplete }: Props) {
-  const [photos, setPhotos] = useState<string[]>([])
-  const [coords, setCoords] = useState<GPSCoords | null>(null)
-  const [violationType, setViolationType] = useState<ViolationType | null>(null)
+export default function UploadStep({ initialPhotos = [], initialViolationType = null, initialCoords = null, onComplete, onBack }: Props) {
+  const [photos, setPhotos] = useState<string[]>(initialPhotos)
+  const [coords, setCoords] = useState<GPSCoords | null>(initialCoords)
+  const [violationType, setViolationType] = useState<ViolationType | null>(initialViolationType)
   const [extracting, setExtracting] = useState(false)
-  const [gpsStatus, setGpsStatus] = useState<'idle' | 'found' | 'manual' | 'error'>('idle')
+  const [gpsStatus, setGpsStatus] = useState<'idle' | 'found' | 'manual' | 'error'>(initialCoords ? 'found' : 'idle')
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function handleFiles(files: FileList) {
@@ -107,9 +111,14 @@ export default function UploadStep({ onComplete }: Props) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">What did you witness?</h2>
-        <p className="text-gray-500 mt-1">Upload your photo and select the violation type to get started.</p>
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} className="text-gray-400 hover:text-gray-600 transition-colors">
+          ← Back
+        </button>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">What did you witness?</h2>
+          <p className="text-gray-500 mt-1">Upload your photo and select the violation type to get started.</p>
+        </div>
       </div>
 
       {/* Violation type selector */}
@@ -120,15 +129,18 @@ export default function UploadStep({ onComplete }: Props) {
             <button
               key={vt.value}
               onClick={() => setViolationType(vt.value)}
-              className={`p-3 rounded-xl border-2 text-left transition-all ${
+              className={`rounded-xl border-2 text-left transition-all overflow-hidden ${
                 violationType === vt.value
-                  ? 'border-green-600 bg-green-50'
-                  : 'border-gray-200 hover:border-green-300 bg-white'
+                  ? 'border-green-600 ring-2 ring-green-200'
+                  : 'border-gray-200 hover:border-green-300'
               }`}
             >
-              <div className="text-2xl mb-1">{vt.icon}</div>
-              <div className="font-semibold text-sm text-gray-900">{vt.label}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{vt.description}</div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={vt.img} alt={vt.label} className="w-full h-24 object-cover" />
+              <div className={`p-3 ${violationType === vt.value ? 'bg-green-50' : 'bg-white'}`}>
+                <div className="font-semibold text-sm text-gray-900">{vt.label}</div>
+                <div className="text-xs text-gray-500 mt-0.5">{vt.description}</div>
+              </div>
             </button>
           ))}
         </div>

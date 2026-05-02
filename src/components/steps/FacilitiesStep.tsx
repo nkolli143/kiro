@@ -7,9 +7,10 @@ import { Building2, AlertTriangle, Loader2, CheckCircle2 } from 'lucide-react'
 interface Props {
   coords: GPSCoords
   onComplete: (facilities: EchoFacility[], selectedId: string | null) => void
+  onBack: () => void
 }
 
-export default function FacilitiesStep({ coords, onComplete }: Props) {
+export default function FacilitiesStep({ coords, onComplete, onBack }: Props) {
   const [facilities, setFacilities] = useState<EchoFacility[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -33,9 +34,14 @@ export default function FacilitiesStep({ coords, onComplete }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Nearby permitted facilities</h2>
+        <div className="flex items-center gap-3 mb-1">
+          <button onClick={onBack} className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+            ← Back
+          </button>
+          <h2 className="text-2xl font-bold text-gray-900">Nearby permitted facilities</h2>
+        </div>
         <p className="text-gray-500 mt-1">
-          These facilities hold EPA permits within 5 miles of your location. Select one if it&apos;s the likely source.
+          These facilities hold EPA permits nearby your location. Select one if it&apos;s the likely source.
         </p>
       </div>
 
@@ -53,7 +59,7 @@ export default function FacilitiesStep({ coords, onComplete }: Props) {
       ) : facilities.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <Building2 size={40} className="mx-auto mb-3 text-gray-300" />
-          <p className="font-medium">No permitted facilities found within 5 miles</p>
+          <p className="font-medium">No permitted facilities found within 80 miles</p>
           <p className="text-sm mt-1">This may indicate an unpermitted discharge</p>
         </div>
       ) : (
@@ -75,7 +81,7 @@ export default function FacilitiesStep({ coords, onComplete }: Props) {
                     {selectedId === f.id && <CheckCircle2 size={16} className="text-green-600 flex-shrink-0" />}
                   </div>
                   <div className="text-sm text-gray-500 mt-0.5">
-                    {f.address}, {f.city}, {f.state} — {f.distanceMiles.toFixed(2)} mi away
+                    {f.address}, {f.city}, {f.state}{f.distanceMiles >= 0 ? ` — ${f.distanceMiles.toFixed(1)} mi away` : ''}
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {f.programs.slice(0, 3).map(p => (
