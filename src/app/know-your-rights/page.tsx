@@ -10,7 +10,7 @@ const SECTIONS = [
     title: 'Your Legal Standing',
     color: 'green',
     intro: 'You are a complainant with standing — not just a concerned bystander. Environmental laws give citizens direct legal rights.',
-    img: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1516937941344-00b4e0337589?w=800&q=80',
     imgAlt: 'Industrial smokestacks polluting the sky',
     content: [
       {
@@ -188,7 +188,7 @@ export default function KnowYourRightsPage() {
       <div className="relative w-full h-72 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1600&q=80"
+          src="https://images.unsplash.com/photo-1516937941344-00b4e0337589?w=1600&q=80"
           alt=""
           className="w-full h-full object-cover"
         />
