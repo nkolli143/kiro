@@ -17,25 +17,29 @@ const VIOLATION_TYPES: { value: ViolationType; label: string; description: strin
     value: 'water_discharge',
     label: 'Water Discharge',
     description: 'Pipe, drain, or runoff into a waterway',
-    img: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400&q=70',
+    // Brown/orange polluted water discharge into a river
+    img: 'https://images.unsplash.com/photo-1621451537084-482c73073a0f?w=400&q=70',
   },
   {
     value: 'air_emissions',
     label: 'Air Emissions',
     description: 'Smoke, fumes, or visible emissions from a facility',
-    img: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&q=70',
+    // Factories with thick smoke billowing under cloudy sky
+    img: 'https://images.unsplash.com/photo-1516937941344-00b4e0337589?w=400&q=70',
   },
   {
     value: 'illegal_dumping',
     label: 'Illegal Dumping',
     description: 'Waste, chemicals, or materials dumped illegally',
+    // Waste barrels and trash dumped illegally
     img: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&q=70',
   },
   {
     value: 'other',
     label: 'Other Violation',
     description: 'Any other environmental violation',
-    img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&q=70',
+    // General industrial environmental hazard
+    img: 'https://images.unsplash.com/photo-1569163139599-0f4517e36f51?w=400&q=70',
   },
 ]
 

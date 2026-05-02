@@ -28,7 +28,7 @@ const STEP_CONTEXT: Record<string, { heading: string; body: string; img: string;
   person: {
     heading: 'Your identity matters',
     body: 'Agencies give higher priority to complaints with verified contact information. Your details are never shared publicly.',
-    img: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80',
+    img: 'https://images.unsplash.com/photo-1516937941344-00b4e0337589?w=600&q=80',
     imgAlt: 'Industrial smoke stacks polluting the sky',
   },
   upload: {

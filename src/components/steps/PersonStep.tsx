@@ -2,8 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { PersonInfo } from '@/types'
-import { LANGUAGES } from '@/types'
-import { Upload, User, Globe } from 'lucide-react'
+import { Upload, User } from 'lucide-react'
 
 interface Props {
   initial: PersonInfo
@@ -13,7 +12,6 @@ interface Props {
 
 export default function PersonStep({ initial, language: initialLang, onComplete }: Props) {
   const [person, setPerson] = useState<PersonInfo>(initial)
-  const [language, setLanguage] = useState(initialLang)
   const [idPreview, setIdPreview] = useState<string | null>(initial.idPhotoDataUrl)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -40,30 +38,6 @@ export default function PersonStep({ initial, language: initialLang, onComplete 
         <p className="text-gray-500 mt-1">
           Your contact details are included in the complaint so agencies can follow up with you directly.
         </p>
-      </div>
-
-      {/* Language selector — top of flow */}
-      <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-        <div className="flex items-center gap-2 text-green-800 font-semibold mb-3">
-          <Globe size={16} />
-          Complaint language
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {LANGUAGES.map(l => (
-            <button
-              key={l.code}
-              onClick={() => setLanguage(l.code)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
-                language === l.code
-                  ? 'border-green-600 bg-green-600 text-white'
-                  : 'border-gray-200 bg-white text-gray-600 hover:border-green-300'
-              }`}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-        <p className="text-xs text-green-700 mt-2">The complaint report will be generated in this language.</p>
       </div>
 
       {/* Personal info form */}
@@ -183,7 +157,7 @@ export default function PersonStep({ initial, language: initialLang, onComplete 
 
       <button
         disabled={!canContinue}
-        onClick={() => onComplete(person, language)}
+        onClick={() => onComplete(person, initialLang)}
         className="w-full py-3 rounded-xl font-semibold text-white bg-green-700 hover:bg-green-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       >
         Continue →

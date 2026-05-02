@@ -188,8 +188,8 @@ export default function KnowYourRightsPage() {
       <div className="relative w-full h-72 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1497435334941-8c899a9bd6b3?w=1600&q=80"
-          alt="Dark smoke billowing from factory chimneys"
+          src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1600&q=80"
+          alt=""
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-gray-950/90 via-gray-950/70 to-transparent" />
@@ -293,16 +293,6 @@ export default function KnowYourRightsPage() {
           alt="Aerial view of industrial facility near water"
           className="w-full h-56 object-cover"
         />
-        <div className="absolute inset-0 bg-gray-950/80 flex flex-col items-center justify-center text-center px-8">
-          <h2 className="text-3xl font-black text-white mb-3">Ready to take action?</h2>
-          <p className="text-gray-300 mb-6 max-w-md">File a structured complaint in under 2 minutes. Your report goes directly to the agencies with jurisdiction.</p>
-          <a
-            href="/"
-            className="bg-green-500 text-gray-900 font-black px-8 py-3 rounded-xl text-base hover:bg-green-400 transition-all"
-          >
-            File a Complaint Now →
-          </a>
-        </div>
       </div>
 
     </div>
